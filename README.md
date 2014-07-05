@@ -3,7 +3,7 @@ Temporal-Footprint
 
 Temporal footprint is a Python based piece of software, which predicts the temporal footprint of a concept by analysing the textual content of its encyclopeadiac description.
 
-![ScreenShot](http://www.cs.man.ac.uk/~filannim/projects/temporal_footprints/gfx/temporal_footprints.png)
+![ScreenShot](http://www.cs.man.ac.uk/~filannim/projects/temporal_footprints/gfx/temporal_footprints_git.png)
 
 ##Requirements
 

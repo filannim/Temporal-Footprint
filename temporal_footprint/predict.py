@@ -70,10 +70,9 @@ class WikipediaPage(object):
 			self.word_count = -1
 			self.DDDD_density = -1
 			self.DDDD_sequences = -1
+			self.temporal_frame = TemporalFrame(0.0, 0.0)
 			if gold_start and gold_end:
 				self.temporal_frame = TemporalFrame(float(gold_start), float(gold_end))
-			else:
-				self.temporal_frame = TemporalFrame(0.0, 0.0)
 		else:
 			self.__read_from_source(title)
 
@@ -92,6 +91,7 @@ class WikipediaPage(object):
 		self.word_count = len(self.text.split())
 		self.DDDD_density = len(re.findall(r'[12][\d]{3}', self.text)) / len(self.text.split())
 		self.DDDD_sequences = len(re.findall(r'[12][\d]{3}', self.text))
+		self.temporal_frame = TemporalFrame(0.0, 0.0)
 
 class Predictor(object):
 
@@ -105,9 +105,11 @@ class Predictor(object):
 		self.results = self.__compute()
 
 	def __compute(self):
+		results = []
 		for function in self.extraction_functions:
 			source = re.findall(r'extract_([A-Za-z]+)_dates', str(function))[0]
-			yield self.__predict(source, function, self.outlier_ray, self.gaussian_a, self.gaussian_b)
+			results.append(self.__predict(source, function, self.outlier_ray, self.gaussian_a, self.gaussian_b))
+		return results
 
 	def __predict(self, source, function, outlier_ray, gaussian_a=1., gaussian_b=0.):
 		if source == 'Baseline':
@@ -130,15 +132,12 @@ class Predictor(object):
 			dates = function(self.person.HeidelTime_text)
 		else:
 			raise Exception('Function ' + source + 'not found!')	
-		try:
-			dates_filtered = self.__reject_outliers(dates, outlier_ray)
-			gaussian_curve = Gaussian._make(self.__normal_fit(dates_filtered))
-			optimised_gaussian_curve = Gaussian(gaussian_curve.mu+gaussian_b, gaussian_curve.sigma*gaussian_a)
-			predicted_temporal_frame = TemporalFrame(optimised_gaussian_curve.mu - optimised_gaussian_curve.sigma, optimised_gaussian_curve.mu + optimised_gaussian_curve.sigma)
-			error = self.__compute_error(self.person.temporal_frame, predicted_temporal_frame)
-			return TemporalFrameResult(source, dates, gaussian_curve, optimised_gaussian_curve, predicted_temporal_frame, error)
-		except:
-			return TemporalFrameResult(source, dates, Gaussian(0,1), Gaussian(0,1), TemporalFrame(1000, Date.today().year), 1.0)
+		dates_filtered = self.__reject_outliers(dates, outlier_ray)
+		gaussian_curve = Gaussian._make(self.__normal_fit(dates_filtered))
+		optimised_gaussian_curve = Gaussian(gaussian_curve.mu+gaussian_b, gaussian_curve.sigma*gaussian_a)
+		predicted_temporal_frame = TemporalFrame(optimised_gaussian_curve.mu - optimised_gaussian_curve.sigma, optimised_gaussian_curve.mu + optimised_gaussian_curve.sigma)
+		error = self.__compute_error(self.person.temporal_frame, predicted_temporal_frame)
+		return TemporalFrameResult(source, dates, gaussian_curve, optimised_gaussian_curve, predicted_temporal_frame, error)
 
 	def __reject_outliers(self, dates, outlier_ray = 2.):
 	    d = np.abs(dates - np.median(dates))
@@ -212,15 +211,15 @@ class Predictor(object):
 				else:
 					axarr[id].set_title(result.source + ' prediction [' + str(int(result.predicted_temporal_frame.start)) + '-' + str(int(result.predicted_temporal_frame.end)) + '], E = ' + str(np.around(result.error, 4)))
 				axarr[id].set_ylabel('freq')
+				axarr[id].set_xlabel('Years (0 - ' + str(next_year) + ')')
 				axarr[id].yaxis.set_ticklabels([])
 				axarr[id].set_xticks(np.arange(1000,next_year, next_year/50))
 				axarr[id].set_xlim(1000,next_year)
 				print result.source, str(np.around(result.error, 4))
 			except:
 				continue
-		axarr[id].set_xlabel('Years (0 - ' + str(next_year) + ')')
 		plt.show(block=False)
-		plt.savefig('pictures/' + self.person.title + '.png', dpi=300)
+		#plt.savefig('pictures/' + self.person.title + '.png', dpi=300)
 		raw_input('Press Any Key To Exit')
 
 def predict(title, outlier_ray=7.9, gaussian_a=1.6, gaussian_b=-10):
