@@ -16,6 +16,7 @@ You should have installed the following Python libraries:
 and the following external softwares:
 
 * HeidelTime ([web page](https://code.google.com/p/heideltime/))
+* wikipedia2text ([web page](https://github.com/chrisbra/wikipedia2text))
 
 ##Contact
 - Email: filannim@cs.man.ac.uk
