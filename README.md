@@ -9,11 +9,11 @@ Temporal footprint is a Python based piece of software, which predicts the tempo
 
 Run the temporal_footprint.py script with a Wikipedia URL as parameter.
 
-    $ python temporal_footprint.py <wikipedia_url>
+    $ python temporal_footprint.py --help
 
 For example:
 
-    $ python temporal_footprint.py http://en.wikipedia.org/wiki/Galileo_Galilei
+    $ python temporal_footprint.py http://en.wikipedia.org/wiki/Galileo_Galilei --start 1564 --end 1642
     Prediction: 1556-1654
     $ 
 
