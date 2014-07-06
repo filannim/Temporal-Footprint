@@ -63,18 +63,15 @@ class Timer(object):
 class WikipediaPage(object):
 
 	def __init__(self, title, text=None, HeidelTime_text=None, gold_start=None, gold_end=None):
-		if text:
-			self.title = title
-			self.text = text
-			self.HeidelTime_text = HeidelTime_text
-			self.word_count = -1
-			self.DDDD_density = -1
-			self.DDDD_sequences = -1
-			self.temporal_frame = TemporalFrame(0.0, 0.0)
-			if gold_start and gold_end:
-				self.temporal_frame = TemporalFrame(float(gold_start), float(gold_end))
-		else:
-			self.__read_from_source(title)
+		self.title = title.strip()
+		self.text = re.sub(r'[<>]', '', wikipedia_text(title.strip(), fullURL=True)['text'])
+		self.HeidelTime_text = HeidelTime_annotate(self.text)
+		self.word_count = len(self.text.split())
+		self.DDDD_density = len(re.findall(r'[12][\d]{3}', self.text)) / len(self.text.split())
+		self.DDDD_sequences = len(re.findall(r'[12][\d]{3}', self.text))
+		self.temporal_frame = TemporalFrame(0.0, 0.0)
+		if gold_start and gold_end:
+			self.temporal_frame = TemporalFrame(float(gold_start), float(gold_end))
 
 	def __str__(self):
 		text = 'TEXT:' + self.text[0:100] + '\n'
@@ -83,24 +80,16 @@ class WikipediaPage(object):
 		text += '# words         :', str(len(self.text.split())) + '\n'
 		text += '# DDDD density  :', str(len(re.findall(r'[12][\d]{3}', self.text)) / len(self.text.split()))
 		return text
-
-	def __read_from_source(self, title):
-		self.title = title.strip()
-		self.text = re.sub(r'[<>]', '', wikipedia_text(title.strip(), fullURL=True)['text'])
-		self.HeidelTime_text = HeidelTime_annotate(self.text)
-		self.word_count = len(self.text.split())
-		self.DDDD_density = len(re.findall(r'[12][\d]{3}', self.text)) / len(self.text.split())
-		self.DDDD_sequences = len(re.findall(r'[12][\d]{3}', self.text))
-		self.temporal_frame = TemporalFrame(0.0, 0.0)
+		
 
 class Predictor(object):
 
-	def __init__(self, Person, outlier_ray, gaussian_a, gaussian_b):
+	def __init__(self, Person, outlier_ray=7.9, gaussian_a=1.6, gaussian_b=-10):
 		self.person = Person
 		self.outlier_ray = outlier_ray
 		self.gaussian_a = gaussian_a
 		self.gaussian_b = gaussian_b
-		self.extraction_functions = (self.__extract_HeidelTime_dates, )
+		self.extraction_functions = (self.__extract_DDDD_dates, self.__extract_HeidelTime_dates)
 		#self.extraction_functions = (self.__extract_Baseline_dates, self.__extract_BaselineFiltered_dates, self.__extract_DDDD_dates, self.__extract_HeidelTime_dates)
 		self.results = self.__compute()
 
@@ -211,17 +200,17 @@ class Predictor(object):
 				else:
 					axarr[id].set_title(result.source + ' prediction [' + str(int(result.predicted_temporal_frame.start)) + '-' + str(int(result.predicted_temporal_frame.end)) + '], E = ' + str(np.around(result.error, 4)))
 				axarr[id].set_ylabel('freq')
-				axarr[id].set_xlabel('Years (0 - ' + str(next_year) + ')')
 				axarr[id].yaxis.set_ticklabels([])
 				axarr[id].set_xticks(np.arange(1000,next_year, next_year/50))
 				axarr[id].set_xlim(1000,next_year)
 				print result.source, str(np.around(result.error, 4))
 			except:
 				continue
+		axarr[id].set_xlabel('Years (0 - ' + str(next_year) + ')')
 		plt.show(block=False)
 		#plt.savefig('pictures/' + self.person.title + '.png', dpi=300)
 		raw_input('Press Any Key To Exit')
 
-def predict(title, outlier_ray=7.9, gaussian_a=1.6, gaussian_b=-10):
-	prediction = Predictor(WikipediaPage(title), outlier_ray, gaussian_a, gaussian_b)
+def predict(title, start=None, end=None):
+	prediction = Predictor(WikipediaPage(title, gold_start=start, gold_end=end))
 	return prediction
