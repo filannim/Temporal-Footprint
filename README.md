@@ -14,7 +14,12 @@ Run the temporal_footprint.py script with a Wikipedia URL as parameter.
 For example:
 
     $ python temporal_footprint.py http://en.wikipedia.org/wiki/Galileo_Galilei
-    > Prediction: 1556-1654
+    Prediction: 1556-1654
+    $ 
+
+##Online DEMO
+
+[Click here for the online DEMO](http://www.cs.man.ac.uk/~filannim/projects/temporal_footprints/).
 
 ##Requirements
 
