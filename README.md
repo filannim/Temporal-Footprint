@@ -43,7 +43,7 @@ Non-Python resources:
 * HeidelTime ([web page](https://code.google.com/p/heideltime/))
 * wikipedia2text ([web page](https://github.com/chrisbra/wikipedia2text))
 
-please update the temporal_footprint/properties.py file with the right paths.
+please update the `temporal_footprint/properties.py` file with the right paths.
 
 ##Contact
 - Email: filannim@cs.man.ac.uk
