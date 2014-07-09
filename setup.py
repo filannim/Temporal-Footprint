@@ -15,6 +15,17 @@
 import distutils.core
 import os
 
+import temporal_footprint
+
+def read(*filenames, **kwargs):
+    encoding = kwargs.get('encoding', 'utf-8')
+    sep = kwargs.get('sep', '\n')
+    buf = []
+    for filename in filenames:
+        with io.open(filename, encoding=encoding) as f:
+            buf.append(f.read())
+    return sep.join(buf)
+
 # Importing setuptools adds some features like "setup.py develop", but
 # it's optional so swallow the error if it's not there.
 try:
@@ -22,13 +33,14 @@ try:
 except ImportError:
     pass
 
+# Current folder
+current_folder = os.path.abspath(os.path.dirname(__file__))
+
 distutils.core.setup(
     name="temporal_footprint",
     description="Temporal footprint extractor from Wikipedia pages.",
-    long_description="""Temporal footprint is a Python based piece of software, 
-    which predicts the temporal footprint of a concept by analysing the 
-    textual content of its encyclopeadiac description.""",
-    version="1.0",
+    long_description=read('README.md', 'LICENSE'),
+    version=temporal_footprint.__version__,
     author="Michele Filannino",
     author_email="filannim@cs.man.ac.uk",
     url="https://github.com/filannim/Temporal-Footprint",
@@ -36,6 +48,6 @@ distutils.core.setup(
     setup_requires = [],
     packages = ['temporal_footprint'],
     include_package_data = True,
-    install_requires = [],
+    install_requires = ['matplotlib', 'numpy', 'scipy'],
     classifiers=[],
 )
