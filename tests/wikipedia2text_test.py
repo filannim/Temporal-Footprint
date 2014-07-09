@@ -16,10 +16,7 @@ from temporal_footprint.wikipedia2text import get_just_text
 from temporal_footprint.wikipedia2text import wikipedia_text
 
 def test_no_title():
-	assert get_just_text('','bla bla') == {'text': 'bla bla'}
+	assert get_just_text('','bla bla') == {'text': ''}
 
 def test_no_raw_text():
 	assert get_just_text('a test','') == {'text': ''}
-
-def test_utf8_in_raw_text():
-	assert get_just_text('a test', 'è åß') == {'text': 'è åß'}
