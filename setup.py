@@ -26,6 +26,21 @@ def read(*filenames, **kwargs):
             buf.append(f.read())
     return sep.join(buf)
 
+long_description = read('README.md', 'LICENSE')
+
+# This class is required in order to allow python setup.py test to work
+# correctly. The code has been copied by the official py.test website.
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errcode = pytest.main(self.test_args)
+        sys.exit(errcode)
+
 # Importing setuptools adds some features like "setup.py develop", but
 # it's optional so swallow the error if it's not there.
 try:
@@ -39,7 +54,7 @@ current_folder = os.path.abspath(os.path.dirname(__file__))
 distutils.core.setup(
     name="temporal_footprint",
     description="Temporal footprint extractor from Wikipedia pages.",
-    long_description=read('README.md', 'LICENSE'),
+    long_description=long_description,
     version=temporal_footprint.__version__,
     author="Michele Filannino",
     author_email="filannim@cs.man.ac.uk",
