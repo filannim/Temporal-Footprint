@@ -15,11 +15,10 @@
 import os
 import re
 import subprocess
-import sys
 
 from properties import properties
 
-def get_just_text(title, raw_text):
+def get_just_text(raw_text):
 	'''
 	It takes a Wikipedia raw_text version of a web page and escape all the 
 	useless things (such as ref tags, {{..}}, an infoboxes).
@@ -67,31 +66,5 @@ def wikipedia_text(title, fullURL=False):
 	else:
 		process = subprocess.Popen([properties['WIKIPEDIA2TEXT_DIR'], '-l', 'en', title], stdout=subprocess.PIPE)
 	wikipedia2text_output, err = process.communicate()
-	text = get_just_text(title, wikipedia2text_output)
+	text = get_just_text(wikipedia2text_output)
 	return text
-
-def main():
-	db = sqlite3.connect('db/wiki_people.db')
-	db.text_factory = str
-	c = db.cursor()
-	#c.execute('CREATE TABLE people (title TEXT PRIMARY KEY, content TEXT, start TEXT, end TEXT)')
-	already_in_titles = set(c.execute('SELECT title FROM people').fetchall())
-	for title in already_in_titles:# - already_in_titles:
-		title = title[0]
-		res = extract_info_from_Wikipedia_title(title)
-		print title, res['start']!=None, res['end']!=None
-		#try:
-		c.execute('UPDATE people SET content=?, annotated_content=? WHERE title=?', (res['text'],None,title,))
-		db.commit()
-		#	print
-		#except:
-		#	print ' **already there**' 
-		#	continue
-	db.close()
-	#insert in the db extract_text_from_Wikipedia_title(title)
-
-if __name__ == '__main__':
-	try:
-		if sys.argv[1]: extract_info_single(sys.argv[1])
-	except:
-		main()

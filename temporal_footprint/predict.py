@@ -20,7 +20,6 @@ from datetime import date as Date
 import re
 import sys
 import os
-import random
 import subprocess
 import tempfile
 import time
@@ -28,7 +27,6 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import numpy as np
-import pylab
 from scipy.stats import norm
 
 from wikipedia2text import wikipedia_text
@@ -63,7 +61,7 @@ class Timer(object):
 
 class WikipediaPage(object):
 
-	def __init__(self, title, text=None, HeidelTime_text=None, gold_start=None, gold_end=None):
+	def __init__(self, title, gold_start=None, gold_end=None):
 		self.title = title.strip()
 		self.text = re.sub(r'[<>]', '', wikipedia_text(title.strip(), fullURL=True)['text'])
 		self.HeidelTime_text = HeidelTime_annotate(self.text)
@@ -189,25 +187,25 @@ class Predictor(object):
 	def plot(self):
 		plt.close('all')
 		fig, (axarr) = plt.subplots(len(self.extraction_functions))
-		for id, result in enumerate(self.results):
+		for i, result in enumerate(self.results):
 			try:
-				n, bins, patches = axarr[id].hist(result.dates, 100, normed=1, facecolor='blue', alpha=0.75)
-				axarr[id].plot(bins, mlab.normpdf(bins, result.gaussian_curve.mu, result.gaussian_curve.sigma), 'r--', linewidth=2)
-				gold = axarr[id].axvspan(self.person.temporal_frame.start, self.person.temporal_frame.end, color='blue', alpha=0.3)
-				prediction = axarr[id].axvspan(result.predicted_temporal_frame.start, result.predicted_temporal_frame.end, color='red', alpha=0.3)
+				n, bins, patches = axarr[i].hist(result.dates, 100, normed=1, facecolor='blue', alpha=0.75)
+				axarr[i].plot(bins, mlab.normpdf(bins, result.gaussian_curve.mu, result.gaussian_curve.sigma), 'r--', linewidth=2)
+				axarr[i].axvspan(self.person.temporal_frame.start, self.person.temporal_frame.end, color='blue', alpha=0.3)
+				axarr[i].axvspan(result.predicted_temporal_frame.start, result.predicted_temporal_frame.end, color='red', alpha=0.3)
 				next_year = int(Date.today().year+1)
-				if id==0:
+				if i==0:
 					axarr[0].set_title(self.person.title.replace('_', ' ') + ' (' + str(int(self.person.temporal_frame.start)) + '-' + str(int(self.person.temporal_frame.end)) + ')\n' + result.source + ' prediction [' + str(int(result.predicted_temporal_frame.start)) + '-' + str(int(result.predicted_temporal_frame.end)) + '], E = ' + str(np.around(result.error, 4)))
 				else:
-					axarr[id].set_title(result.source + ' prediction [' + str(int(result.predicted_temporal_frame.start)) + '-' + str(int(result.predicted_temporal_frame.end)) + '], E = ' + str(np.around(result.error, 4)))
-				axarr[id].set_ylabel('freq')
-				axarr[id].yaxis.set_ticklabels([])
-				axarr[id].set_xticks(np.arange(1000,next_year, next_year/50))
-				axarr[id].set_xlim(1000,next_year)
+					axarr[i].set_title(result.source + ' prediction [' + str(int(result.predicted_temporal_frame.start)) + '-' + str(int(result.predicted_temporal_frame.end)) + '], E = ' + str(np.around(result.error, 4)))
+				axarr[i].set_ylabel('freq')
+				axarr[i].yaxis.set_ticklabels([])
+				axarr[i].set_xticks(np.arange(1000,next_year, next_year/50))
+				axarr[i].set_xlim(1000,next_year)
 				print result.source, str(np.around(result.error, 4))
 			except:
 				continue
-		axarr[id].set_xlabel('Years (0 - ' + str(next_year) + ')')
+		axarr[i].set_xlabel('Years (0 - ' + str(next_year) + ')')
 		plt.show(block=False)
 		#plt.savefig('pictures/' + self.person.title + '.png', dpi=300)
 		raw_input('Press Any Key To Exit')
