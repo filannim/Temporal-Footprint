@@ -15,4 +15,4 @@
 properties = {}
 properties['MAIN_DIR'] = '/home/filannim/Dropbox/Workspace/ManTIME/temporal_location/'
 properties['HEIDELTIME_DIR'] = '/home/filannim/Downloads/heideltime-standalone-1.5/'
-properties['WIKIPEDIA2TEXT_DIR'] = '/home/filannim/Dropbox/Workspace/ManTIME/temporal_location/external/wikipedia2text'
+properties['WIKIPEDIA2TEXT'] = '/home/filannim/Dropbox/Workspace/ManTIME/temporal_location/external/wikipedia2text'
