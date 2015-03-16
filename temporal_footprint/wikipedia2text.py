@@ -62,9 +62,9 @@ def wikipedia_text(title, fullURL=False):
 	title = title.decode("unicode-escape")
 	if fullURL:
 		query = title.split('/')[-1]
-		process = subprocess.Popen([properties['WIKIPEDIA2TEXT_DIR'], '-l', 'en', query], stdout=subprocess.PIPE)
+		process = subprocess.Popen([properties['WIKIPEDIA2TEXT'], '-l', 'en', query], stdout=subprocess.PIPE)
 	else:
-		process = subprocess.Popen([properties['WIKIPEDIA2TEXT_DIR'], '-l', 'en', title], stdout=subprocess.PIPE)
+		process = subprocess.Popen([properties['WIKIPEDIA2TEXT'], '-l', 'en', title], stdout=subprocess.PIPE)
 	wikipedia2text_output, err = process.communicate()
 	text = get_just_text(wikipedia2text_output)
 	return text
